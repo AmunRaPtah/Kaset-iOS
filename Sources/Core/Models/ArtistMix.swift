@@ -131,9 +131,9 @@ struct ArtistMix: Codable, Identifiable, Hashable {
 // MARK: - ArtistMixMarker
 
 /// Reads and writes a mix's settings in its playlist description: a readable sentence, then
-/// one line `#kaset-mix {json}` the app parses back on any device.
+/// one line `#ytmusicplus-mix {json}` the app parses back on any device.
 enum ArtistMixMarker {
-    static let tag = "#kaset-mix "
+    static let tag = "#ytmusicplus-mix "
 
     private struct Payload: Codable {
         var v = 1
@@ -158,7 +158,7 @@ enum ArtistMixMarker {
         encoder.outputFormatting = [.withoutEscapingSlashes, .sortedKeys]
         let json = (try? encoder.encode(payload)).flatMap { String(data: $0, encoding: .utf8) } ?? "{}"
         let names = mix.artists.map(\.name).joined(separator: ", ")
-        return "Mix: \(names) · Made with Kaset\n\(self.tag)\(json)"
+        return "Mix: \(names) · Made with YTMusicPlus\n\(self.tag)\(json)"
     }
 
     /// The mix described by a playlist description, or `nil` for any other playlist.

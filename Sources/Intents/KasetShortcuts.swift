@@ -2,7 +2,7 @@ import AppIntents
 
 /// The phrases Siri knows without any setup, and the actions shown first in Shortcuts.
 /// French phrases live in `AppShortcuts.xcstrings`.
-struct KasetShortcuts: AppShortcutsProvider {
+struct YTMusicPlusShortcuts: AppShortcutsProvider {
     static let shortcutTileColor: ShortcutTileColor = .pink
 
     static var appShortcuts: [AppShortcut] {

@@ -27,16 +27,16 @@ enum BufferPolicy {
 /// - With the longer buffer on, those stop signals are hidden from the page (`streaming`
 ///   reads `true`) and the player's read-ahead window flags are raised.
 ///
-/// Everything is observable through `window.__kasetBuffer.inspect()`.
+/// Everything is observable through `window.__ytmusicplusBuffer.inspect()`.
 enum BufferScripts {
     static func bootstrap(extended: Bool) -> String {
         """
         (function () {
-          if (window.__kasetBuffer) { return; }
+          if (window.__ytmusicplusBuffer) { return; }
           const READAHEAD = \(BufferPolicy.extendedReadaheadSeconds);
           const info = { sources: [], startStreaming: 0, endStreaming: 0, hiddenEndStreaming: 0, flags: [], overrides: [] };
-          window.__kasetBuffer = info;
-          window.__kasetExtendedBuffer = \(extended ? "true" : "false");
+          window.__ytmusicplusBuffer = info;
+          window.__ytmusicplusExtendedBuffer = \(extended ? "true" : "false");
 
           // MARK: media sources
           ['ManagedMediaSource', 'MediaSource'].forEach((name) => {
@@ -53,7 +53,7 @@ enum BufferScripts {
                   this.addEventListener('startstreaming', () => { info.startStreaming += 1; });
                   this.addEventListener('endstreaming', (e) => {
                     info.endStreaming += 1;
-                    if (window.__kasetExtendedBuffer) { info.hiddenEndStreaming += 1; e.stopImmediatePropagation(); }
+                    if (window.__ytmusicplusExtendedBuffer) { info.hiddenEndStreaming += 1; e.stopImmediatePropagation(); }
                   });
                 }
               }
@@ -61,7 +61,7 @@ enum BufferScripts {
             if (realStreaming && realStreaming.get) {
               Object.defineProperty(Tracked.prototype, 'streaming', {
                 configurable: true,
-                get() { return window.__kasetExtendedBuffer ? true : realStreaming.get.call(this); }
+                get() { return window.__ytmusicplusExtendedBuffer ? true : realStreaming.get.call(this); }
               });
             }
             try { window[name] = Tracked; } catch (e) {}
@@ -81,7 +81,7 @@ enum BufferScripts {
             if (isWatched(key) && info.flags.length < 80) { info.flags.push(key + '=' + value); }
           };
           const raised = (key, value) => {
-            if (!window.__kasetExtendedBuffer || !(key in OVERRIDES)) { return null; }
+            if (!window.__ytmusicplusExtendedBuffer || !(key in OVERRIDES)) { return null; }
             const n = Number(value);
             const target = OVERRIDES[key];
             if (isFinite(n) && n >= target) { return null; }
@@ -124,7 +124,7 @@ enum BufferScripts {
           };
           // `ytcfg` is created by an inline script; catch it on assignment and wrap `set`.
           const wrap = (cfg) => {
-            if (!cfg || cfg.__kasetWrapped || typeof cfg.set !== 'function') { return cfg; }
+            if (!cfg || cfg.__ytmusicplusWrapped || typeof cfg.set !== 'function') { return cfg; }
             const set = cfg.set;
             cfg.set = function (key, value) {
               if (key && typeof key === 'object') { patchConfig(key); } else if (typeof key === 'string') {
@@ -132,7 +132,7 @@ enum BufferScripts {
               }
               return set.apply(this, arguments);
             };
-            cfg.__kasetWrapped = true;
+            cfg.__ytmusicplusWrapped = true;
             return cfg;
           };
           let current = window.ytcfg;
@@ -167,13 +167,13 @@ enum BufferScripts {
               } catch (e) { streaming = '?'; }
             }
             return (last ? last.kind : 'no media source') + ' streaming=' + streaming
-              + ' end=' + info.endStreaming + (window.__kasetExtendedBuffer ? ' (hidden ' + info.hiddenEndStreaming + ')' : '')
+              + ' end=' + info.endStreaming + (window.__ytmusicplusExtendedBuffer ? ' (hidden ' + info.hiddenEndStreaming + ')' : '')
               + ' overrides=' + info.overrides.length;
           };
           info.inspect = () => {
             const out = [];
             const m = document.querySelector('video') || document.querySelector('audio');
-            out.push('extended=' + window.__kasetExtendedBuffer + ' ahead=' + info.ahead() + 's');
+            out.push('extended=' + window.__ytmusicplusExtendedBuffer + ' ahead=' + info.ahead() + 's');
             out.push('summary: ' + info.summary());
             out.push('globals: MediaSource=' + (typeof window.MediaSource) + ' ManagedMediaSource=' + (typeof window.ManagedMediaSource));
             if (m) {

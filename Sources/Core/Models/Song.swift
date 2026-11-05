@@ -200,7 +200,7 @@ struct Song: Identifiable, Codable, Hashable {
     /// YouTube's public high-quality 16:9 thumbnail for wide video cards.
     var wideHighQualityThumbnailURL: URL? {
         var components = URLComponents(string: "https://i.ytimg.com/vi/\(self.videoId)/hq720.jpg")
-        components?.queryItems = [URLQueryItem(name: "kaset", value: "wide-v2")]
+        components?.queryItems = [URLQueryItem(name: "ytmusicplus", value: "wide-v2")]
         return components?.url
     }
 }

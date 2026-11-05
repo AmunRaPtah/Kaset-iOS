@@ -32,11 +32,11 @@ struct RootView: View {
         .task { await environment.start() }
         .task(id: environment.auth.state) {
             guard environment.auth.state == .signedIn else { return }
-            KasetShortcuts.updateAppShortcutParameters()
+            YTMusicPlusShortcuts.updateAppShortcutParameters()
             await environment.newReleases.requestNotificationPermissionIfNeeded()
             await environment.newReleases.checkIfDue(client: environment.client, auth: environment.auth)
         }
-        .onChange(of: environment.libraryRevision) { KasetShortcuts.updateAppShortcutParameters() }
+        .onChange(of: environment.libraryRevision) { YTMusicPlusShortcuts.updateAppShortcutParameters() }
         .onChange(of: self.scenePhase) { _, phase in
             switch phase {
             case .active:

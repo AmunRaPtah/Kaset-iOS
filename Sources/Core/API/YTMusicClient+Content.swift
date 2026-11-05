@@ -1,6 +1,6 @@
 import Foundation
 
-// Trimmed from kaset Services/API/YTMusicClient.swift: mood categories, library, liked songs,
+// Trimmed from ytmusicplus Services/API/YTMusicClient.swift: mood categories, library, liked songs,
 // playlist/album detail, artist detail, lyrics, song metadata, ratings.
 
 extension YTMusicClient {
@@ -21,7 +21,7 @@ extension YTMusicClient {
     // MARK: - Library
 
     /// Playlists, saved albums and followed artists. Dedicated endpoints are preferred, the
-    /// landing preview is the fallback (kaset keeps the same order of preference).
+    /// landing preview is the fallback (ytmusicplus keeps the same order of preference).
     func getLibraryContent() async throws -> PlaylistParser.LibraryContent {
         let landingData = try await self.request(
             "browse", body: ["browseId": "FEmusic_library_landing"], ttl: APICache.TTL.library
@@ -92,7 +92,7 @@ extension YTMusicClient {
 
     // MARK: - Playlist / album
 
-    /// Browse id for a playlist, album or radio id (kaset `playlistBrowseId`).
+    /// Browse id for a playlist, album or radio id (ytmusicplus `playlistBrowseId`).
     nonisolated static func playlistBrowseId(for id: String) -> String {
         let loadsAsIs = id.hasPrefix("VL") || id.hasPrefix("RD") || id.hasPrefix("MPRE") || id.hasPrefix("UC")
         return loadsAsIs ? id : "VL\(id)"
@@ -185,7 +185,7 @@ extension YTMusicClient {
         return try SongMetadataParser.parse(data, videoId: videoId)
     }
 
-    /// Timed lyrics when the `next` response carries them (kaset `getTimedLyrics`), otherwise
+    /// Timed lyrics when the `next` response carries them (ytmusicplus `getTimedLyrics`), otherwise
     /// the plain lyrics behind the lyrics tab.
     func getLyrics(videoId: String) async throws -> LyricResult {
         let nextBody: [String: Any] = [
@@ -346,7 +346,7 @@ extension YTMusicClient {
         self.cache.invalidateMutationCaches()
     }
 
-    /// Permanently deletes a playlist the user owns (kaset `deletePlaylist`).
+    /// Permanently deletes a playlist the user owns (ytmusicplus `deletePlaylist`).
     func deletePlaylist(id: String) async throws {
         let clean = id.hasPrefix("VL") ? String(id.dropFirst(2)) : id
         _ = try await self.request("playlist/delete", body: ["playlistId": clean], authPolicy: .required)

@@ -29,8 +29,8 @@ final class SpikeLog: ObservableObject {
 
     func log(_ category: String, _ message: String) {
         // Mirrored to the unified log so lines show up in Xcode's console (filter by subsystem
-        // `dev.emoona.kaset`, or search `[queue]`, `[inspect]`) as well as in the in-app log.
-        Logger(subsystem: "dev.emoona.kaset", category: category).notice("[\(category)] \(message, privacy: .public)")
+        // `dev.enniol.ytmusicplus`, or search `[queue]`, `[inspect]`) as well as in the in-app log.
+        Logger(subsystem: "dev.enniol.ytmusicplus", category: category).notice("[\(category)] \(message, privacy: .public)")
         let line = "\(self.formatter.string(from: Date())) [\(category)] \(message)"
         self.lines.append(line)
         if self.lines.count > 400 {

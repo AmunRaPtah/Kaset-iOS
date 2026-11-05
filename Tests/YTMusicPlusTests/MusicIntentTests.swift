@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 struct MusicIntentTextTests {
     @Test func queryIsCleanedUpAndPutOnOneLine() {

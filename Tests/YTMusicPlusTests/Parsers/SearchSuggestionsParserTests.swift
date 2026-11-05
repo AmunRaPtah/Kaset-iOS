@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 /// Tests for SearchSuggestionsParser.
 @Suite(.tags(.parser))

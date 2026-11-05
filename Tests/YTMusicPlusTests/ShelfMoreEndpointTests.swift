@@ -1,6 +1,6 @@
 import Testing
 
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 struct ShelfMoreEndpointTests {
     private static func carousel(browseId: String, params: String? = nil, pageType: String? = nil) -> [String: Any] {

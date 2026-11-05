@@ -1,6 +1,6 @@
 import Foundation
 
-/// Ad signal detection, copied from kaset `Services/WebKit/PlaybackAdDetectionScript.swift`
+/// Ad signal detection, copied from ytmusicplus `Services/WebKit/PlaybackAdDetectionScript.swift`
 /// (`detection`; the observation hook is not needed: the page script polls instead).
 enum AdDetectionScript {
     nonisolated static var detection: String {
@@ -54,20 +54,20 @@ enum AdDetectionScript {
                 } catch (e) {}
             }
             if (isAd && contentVideoId && videoId && videoId !== contentVideoId) {
-                window.__kasetAdVideoId = videoId;
+                window.__ytmusicplusAdVideoId = videoId;
             }
             // Ad-end signals can precede the return of content media. Share the
             // known creative ID with end-event and recovery-seek scripts too.
-            const adVideoId = window.__kasetAdVideoId || '';
+            const adVideoId = window.__ytmusicplusAdVideoId || '';
             const video = document.querySelector('#movie_player video') || document.querySelector('video');
-            const boundVideoId = video && video.__kasetBoundVideoId;
+            const boundVideoId = video && video.__ytmusicplusBoundVideoId;
             // An ad pod can change creatives while ad signals briefly clear.
             // Wait for the requested content's metadata and physical media.
             const awaitingContent = adVideoId !== ''
                 && adVideoId !== contentVideoId
                 && (videoId !== contentVideoId
                     || (!!boundVideoId && boundVideoId !== contentVideoId));
-            if (!isAd && !awaitingContent) delete window.__kasetAdVideoId;
+            if (!isAd && !awaitingContent) delete window.__ytmusicplusAdVideoId;
             return isAd || awaitingContent;
         }
         """
@@ -80,6 +80,16 @@ enum AdSkip {
     static let storageKey = "settings.adAutoSkip"
 
     static var isEnabled: Bool {
-        UserDefaults.standard.bool(forKey: self.storageKey)
+        false
+    }
+}
+
+/// "Skip silence" — auto-advance tracks that are zero/very short duration.
+/// User-configurable: off by default so the user sees the track before it vanishes.
+enum SilenceSkip {
+    static let storageKey = "settings.silenceSkip"
+
+    static var isEnabled: Bool {
+        UserDefaults.standard.bool(forKey: storageKey)
     }
 }

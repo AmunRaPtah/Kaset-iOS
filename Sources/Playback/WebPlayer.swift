@@ -202,7 +202,7 @@ final class WebPlayer: NSObject {
         components.queryItems = items
         guard let url = components.url else { return }
         // With a document already loaded, navigate inside it through the web app's own router
-        // (as kaset does): no new document to download, boot and run, so playback starts much
+        // (as ytmusicplus does): no new document to download, boot and run, so playback starts much
         // sooner than with a full page load. Falls back to the load if the router is missing.
         if let videoId, self.hasLoadedPage {
             let endpoint = PlayerScripts.watchEndpointScript(videoId: videoId, playlistId: playlistId)
@@ -261,7 +261,7 @@ final class WebPlayer: NSObject {
     /// Dumps what the page's queue component exposes (methods, data keys) into the log, to look
     /// for a real reorder primitive. Diagnostics only.
     func inspectQueue() {
-        self.webView.evaluateJavaScript("window.__kaset ? window.__kaset.inspectQueue() : 'no-page'") { [weak self] result, error in
+        self.webView.evaluateJavaScript("window.__ytmusicplus ? window.__ytmusicplus.inspectQueue() : 'no-page'") { [weak self] result, error in
             Task { @MainActor in
                 let text = (result as? String) ?? error?.localizedDescription ?? "nil"
                 for line in text.split(separator: "\n") { self?.log.log("inspect", String(line)) }
@@ -273,7 +273,7 @@ final class WebPlayer: NSObject {
     /// Checks that start failing are written to the log.
     @discardableResult
     func checkHealth() async -> PlayerHealthReport {
-        let js = "JSON.stringify(window.__kaset && window.__kaset.health ? window.__kaset.health() : null)"
+        let js = "JSON.stringify(window.__ytmusicplus && window.__ytmusicplus.health ? window.__ytmusicplus.health() : null)"
         let report: PlayerHealthReport
         do {
             let text = try await self.webView.evaluateJavaScript(js) as? String ?? "null"
@@ -408,7 +408,7 @@ final class WebPlayer: NSObject {
 
     /// Returns `nil` on success, or what the page reported.
     private func removeQueueEntryAndWait(at index: Int) async -> String? {
-        let js = "return await window.__kaset.removeQueueIndexAsync(index);"
+        let js = "return await window.__ytmusicplus.removeQueueIndexAsync(index);"
         let result = (try? await self.webView.callAsyncJavaScript(
             js, arguments: ["index": index], in: nil, contentWorld: .page
         ) as? String) ?? "no-result"
@@ -480,7 +480,13 @@ final class WebPlayer: NSObject {
 
     /// Pushes the ad auto-skip preference to the live page.
     func applyAdSkipSetting() {
-        let js = "window.__kasetAdAutoSkip = \(AdSkip.isEnabled ? "true" : "false");"
+        let js = "window.__ytmusicplusAdAutoSkip = \(AdSkip.isEnabled ? "true" : "false");"
+        self.webView.evaluateJavaScript(js, completionHandler: nil)
+    }
+
+    /// Pushes the silence skip preference to the live page.
+    func applySilenceSkipSetting() {
+        let js = "window.__ytmusicplusSilenceSkip = \(SilenceSkip.isEnabled ? "true" : "false");"
         self.webView.evaluateJavaScript(js, completionHandler: nil)
     }
 
@@ -497,7 +503,7 @@ final class WebPlayer: NSObject {
 
     func refreshState() {
         Task {
-            let js = "JSON.stringify(window.__kaset ? window.__kaset.state() : null)"
+            let js = "JSON.stringify(window.__ytmusicplus ? window.__ytmusicplus.state() : null)"
             guard let text = try? await self.webView.evaluateJavaScript(js) as? String,
                   let data = text.data(using: .utf8),
                   let message = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -512,7 +518,7 @@ final class WebPlayer: NSObject {
     private func command(_ name: String, argument: String? = nil) {
         if name == "play" || name == "toggle", !self.isInCall { self.releasePageInterruption() }
         let call = "\(name)(\(argument ?? ""))"
-        let js = "window.__kaset ? String(window.__kaset.\(call)) : 'no-page'"
+        let js = "window.__ytmusicplus ? String(window.__ytmusicplus.\(call)) : 'no-page'"
         Task {
             let result: String
             do {
@@ -801,7 +807,7 @@ final class WebPlayer: NSObject {
                 self.wasOffline = !online
             }
         }
-        self.pathMonitor.start(queue: DispatchQueue(label: "dev.emoona.kaset.path"))
+        self.pathMonitor.start(queue: DispatchQueue(label: "dev.enniol.ytmusicplus.path"))
     }
 
     /// The page usually picks up again by itself once it can load; give it a moment, then nudge
@@ -847,13 +853,13 @@ final class WebPlayer: NSObject {
 
     /// Turns the longer buffer on or off in the live page; flag overrides apply on the next load.
     func applyBufferSetting() {
-        let js = "window.__kasetExtendedBuffer = \(BufferPolicy.isExtended ? "true" : "false");"
+        let js = "window.__ytmusicplusExtendedBuffer = \(BufferPolicy.isExtended ? "true" : "false");"
         self.webView.evaluateJavaScript(js, completionHandler: nil)
     }
 
     /// Writes what the page buffers and which read-ahead flags it uses into the log.
     func inspectBuffer() {
-        let js = "window.__kasetBuffer ? window.__kasetBuffer.inspect() : 'buffer script not loaded'"
+        let js = "window.__ytmusicplusBuffer ? window.__ytmusicplusBuffer.inspect() : 'buffer script not loaded'"
         self.webView.evaluateJavaScript(js) { [weak self] result, error in
             Task { @MainActor in
                 let text = (result as? String) ?? error?.localizedDescription ?? "nil"
@@ -1036,7 +1042,7 @@ final class WebPlayer: NSObject {
             self.pausedForCall = true
             self.pageIsInterrupted = true
             self.log.log("call", "call started while playing: pausing")
-            self.webView.evaluateJavaScript("window.__kaset ? window.__kaset.setInterrupted(true) : 'no-page'", completionHandler: nil)
+            self.webView.evaluateJavaScript("window.__ytmusicplus ? window.__ytmusicplus.setInterrupted(true) : 'no-page'", completionHandler: nil)
         } else {
             let shouldResume = self.pausedForCall
             self.pausedForCall = false
@@ -1055,7 +1061,7 @@ final class WebPlayer: NSObject {
     private func releasePageInterruption() {
         guard self.pageIsInterrupted else { return }
         self.pageIsInterrupted = false
-        self.webView.evaluateJavaScript("window.__kaset ? window.__kaset.setInterrupted(false) : 'no-page'", completionHandler: nil)
+        self.webView.evaluateJavaScript("window.__ytmusicplus ? window.__ytmusicplus.setInterrupted(false) : 'no-page'", completionHandler: nil)
     }
 
     // MARK: - Lifecycle
@@ -1075,7 +1081,7 @@ final class WebPlayer: NSObject {
                     if label == "willResignActive", let self, self.state.isPlaying, !self.isInCall {
                         // Arm the page's guard before iOS gets the chance to pause the media.
                         self.webView.evaluateJavaScript(
-                            "window.__kaset ? window.__kaset.setBackgroundGuard(6000) : 'no-page'",
+                            "window.__ytmusicplus ? window.__ytmusicplus.setBackgroundGuard(6000) : 'no-page'",
                             completionHandler: nil
                         )
                     }

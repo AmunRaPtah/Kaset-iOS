@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 // MARK: - SearchResponseParserTests
 

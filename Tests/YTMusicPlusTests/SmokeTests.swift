@@ -1,6 +1,6 @@
 import Testing
 
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 @MainActor
 struct SmokeTests {

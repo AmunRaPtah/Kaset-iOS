@@ -220,7 +220,7 @@ struct RecapCard: View {
             Spacer(minLength: 0)
             HStack {
                 Spacer()
-                Text(verbatim: "Kaset").font(.footnote.weight(.semibold)).opacity(0.7)
+                Text(verbatim: "YTMusicPlus").font(.footnote.weight(.semibold)).opacity(0.7)
             }
         }
         .foregroundStyle(.white)

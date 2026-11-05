@@ -2,7 +2,7 @@ import SwiftUI
 import UserNotifications
 
 @main
-struct KasetApp: App {
+struct YTMusicPlusApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var environment = AppEnvironment.shared
 
@@ -60,6 +60,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
 }
 
 extension Color {
-    /// The red-pink of the app icon (kaset's cassette), used as the accent colour.
-    static let brand = Color(red: 252 / 255, green: 19 / 255, blue: 85 / 255)
+    /// Deep navy / electric blue accent.
+    static let brand = Color(red: 10 / 255, green: 80 / 255, blue: 240 / 255)
 }

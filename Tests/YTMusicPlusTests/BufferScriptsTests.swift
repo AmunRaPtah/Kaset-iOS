@@ -1,7 +1,7 @@
 import JavaScriptCore
 import Testing
 
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 /// Runs the buffer bootstrap in JavaScriptCore against a stand-in `ManagedMediaSource` and `ytcfg`.
 struct BufferScriptsTests {
@@ -42,7 +42,7 @@ struct BufferScriptsTests {
         #expect(context.exception == nil, "\(context.exception?.toString() ?? "")")
         #expect(context.evaluateScript("ms.streaming").toBool() == true)
         #expect(context.evaluateScript("reached").toInt32() == 1, "the page's listener must not run")
-        #expect(context.evaluateScript("window.__kasetBuffer.hiddenEndStreaming").toInt32() == 1)
+        #expect(context.evaluateScript("window.__ytmusicplusBuffer.hiddenEndStreaming").toInt32() == 1)
         #expect(context.evaluateScript("ms instanceof FakeMMS").toBool() == true)
     }
 
@@ -77,6 +77,6 @@ struct BufferScriptsTests {
             == "html5_minimum_readahead_seconds=240&html5_subsegment_readahead_timeout_secs=2.0&html5_maximum_readahead_seconds=300")
         #expect(context.evaluateScript("window.ytcfg.values.EXPERIMENT_FLAGS.html5_platform_minimum_readahead_seconds").toInt32() == 240)
         #expect(context.evaluateScript("window.ytcfg.values.EXPERIMENT_FLAGS.html5_subsegment_readahead_min_load_speed").toDouble() == 1.5)
-        #expect(context.evaluateScript("typeof window.__kasetBuffer.inspect()").toString() == "string")
+        #expect(context.evaluateScript("typeof window.__ytmusicplusBuffer.inspect()").toString() == "string")
     }
 }

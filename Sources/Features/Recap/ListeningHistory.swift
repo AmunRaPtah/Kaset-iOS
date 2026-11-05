@@ -8,7 +8,7 @@ import Observation
 @MainActor
 @Observable
 final class ListeningHistory {
-    nonisolated static let syncFileName = "Kaset Listening History.json"
+    nonisolated static let syncFileName = "YTMusicPlus Listening History.json"
     private static let bookmarkKey = "recap.syncFolderBookmark"
     /// Writes while a play goes on are batched; a new play is saved right away.
     private static let saveInterval: TimeInterval = 30

@@ -1,10 +1,10 @@
 import Foundation
 
-// Play-next injection, copied from kaset `Views/SingletonPlayerWebView+QueueInjection.swift`
+// Play-next injection, copied from ytmusicplus `Views/SingletonPlayerWebView+QueueInjection.swift`
 // (queueInjectionScript). The player-bar "Play next" menu item already carries a
 // `queueAddEndpoint`; its target is substituted for the click and restored right after, and the
 // attempt is trusted only once the page's queue model shows the target after the source.
-// Differences: bridge `kaset`, result message `{kind: 'queueResult'}`, no document generation.
+// Differences: bridge `ytmusicplus`, result message `{kind: 'queueResult'}`, no document generation.
 
 extension PlayerScripts {
     /// Result arrives asynchronously as a `queueResult` message.
@@ -12,7 +12,7 @@ extension PlayerScripts {
         """
         (function(targetVideoId, sourceVideoId) {
             const bridge = window.webkit && window.webkit.messageHandlers
-                && window.webkit.messageHandlers.kaset;
+                && window.webkit.messageHandlers.ytmusicplus;
             const injectionAttemptId = \(attempt);
             const startedAt = Date.now();
             let menuObserver = null;
@@ -24,8 +24,8 @@ extension PlayerScripts {
             let didDispatchCommand = false;
             \(PlayerScripts.playerBarLookup)
 
-            if (typeof window.__kasetCancelQueueInjectionAttempt === 'function') {
-                window.__kasetCancelQueueInjectionAttempt();
+            if (typeof window.__ytmusicplusCancelQueueInjectionAttempt === 'function') {
+                window.__ytmusicplusCancelQueueInjectionAttempt();
             }
 
             function clearTimer(timerId) {
@@ -33,10 +33,10 @@ extension PlayerScripts {
             }
 
             function clearGlobals() {
-                if (window.__kasetQueueInjectionAttemptId !== injectionAttemptId) return;
-                window.__kasetQueueInjectionAttemptId = null;
-                window.__kasetQueueInjectionReport = null;
-                window.__kasetCancelQueueInjectionAttempt = null;
+                if (window.__ytmusicplusQueueInjectionAttemptId !== injectionAttemptId) return;
+                window.__ytmusicplusQueueInjectionAttemptId = null;
+                window.__ytmusicplusQueueInjectionReport = null;
+                window.__ytmusicplusCancelQueueInjectionAttempt = null;
             }
 
             function dismissPlayerMenu() {
@@ -83,9 +83,9 @@ extension PlayerScripts {
                 finishAttempt();
             }
 
-            window.__kasetQueueInjectionAttemptId = injectionAttemptId;
-            window.__kasetQueueInjectionReport = report;
-            window.__kasetCancelQueueInjectionAttempt = cancelAttempt;
+            window.__ytmusicplusQueueInjectionAttemptId = injectionAttemptId;
+            window.__ytmusicplusQueueInjectionReport = report;
+            window.__ytmusicplusCancelQueueInjectionAttempt = cancelAttempt;
 
             function collectVideoIds(root) {
                 const ids = [];
@@ -114,7 +114,7 @@ extension PlayerScripts {
             }
 
             function queueItemIsCurrent(item) {
-                if (item.__kasetIsCurrent === true) return true;
+                if (item.__ytmusicplusIsCurrent === true) return true;
                 if (typeof item.hasAttribute === 'function'
                     && (item.hasAttribute('selected')
                         || item.hasAttribute('is-playlist-panel-video-renderer-selected'))) {
@@ -203,7 +203,7 @@ extension PlayerScripts {
             }
 
             function dispatchVerifiedQueueClick(menuItems) {
-                if (window.__kasetQueueInjectionAttemptId !== injectionAttemptId) return false;
+                if (window.__ytmusicplusQueueInjectionAttemptId !== injectionAttemptId) return false;
                 const targetItem = findPlayNextItem(menuItems);
                 if (!targetItem) {
                     report(false, 'play-next-item-not-found');
@@ -297,7 +297,7 @@ extension PlayerScripts {
 
                 const verificationStartedAt = Date.now();
                 function verifyQueuedTarget() {
-                    if (didReport || window.__kasetQueueInjectionAttemptId !== injectionAttemptId) {
+                    if (didReport || window.__ytmusicplusQueueInjectionAttemptId !== injectionAttemptId) {
                         return;
                     }
                     const items = currentQueueItems();
@@ -326,9 +326,9 @@ extension PlayerScripts {
             }
 
             function findPlayerBarMenuButton() {
-                const playerBar = __kasetPlayerBar();
+                const playerBar = __ytmusicplusPlayerBar();
                 if (!playerBar) return null;
-                const menuButton = __kasetPlayerBarElement('menu', playerBar);
+                const menuButton = __ytmusicplusPlayerBarElement('menu', playerBar);
                 if (menuButton) return menuButton;
 
                 // Compatibility fallback for the newer player-bar button shape.
@@ -338,7 +338,7 @@ extension PlayerScripts {
             }
 
             function openPlayerBarMenuWhenReady() {
-                if (didReport || window.__kasetQueueInjectionAttemptId !== injectionAttemptId) return;
+                if (didReport || window.__ytmusicplusQueueInjectionAttemptId !== injectionAttemptId) return;
                 const playerBarMenuButton = findPlayerBarMenuButton();
                 if (!playerBarMenuButton) {
                     if (Date.now() - startedAt < 8000) {
@@ -355,14 +355,14 @@ extension PlayerScripts {
                 let didInspectOpenMenu = false;
                 function tryDispatchFromMenu() {
                     if (didReport || didDispatchCommand || didInspectOpenMenu
-                        || window.__kasetQueueInjectionAttemptId !== injectionAttemptId) {
+                        || window.__ytmusicplusQueueInjectionAttemptId !== injectionAttemptId) {
                         return;
                     }
                     const menuItems = document.querySelectorAll(
                         'ytmusic-menu-popup-renderer ytmusic-menu-service-item-renderer'
                     );
                     if (menuItems.length === 0) return;
-                    // Local change vs kaset: the popup is filled lazily (and an older popup can
+                    // Local change vs ytmusicplus: the popup is filled lazily (and an older popup can
                     // still be mounted), so an open menu without "Play next" yet is not a
                     // failure. Keep looking for a few seconds before giving up.
                     if (!findPlayNextItem(menuItems) && Date.now() - startedAt < 4000) {

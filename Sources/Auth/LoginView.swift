@@ -1,7 +1,7 @@
 import SwiftUI
 import WebKit
 
-// Adapted from kaset: Views/LoginWebView.swift, Services/WebKit/LoginPasskeySuppression.swift
+// Adapted from ytmusicplus: Views/LoginWebView.swift, Services/WebKit/LoginPasskeySuppression.swift
 // (ADR-0033). Without the restricted passkey entitlement every WebAuthn ceremony dead-ends,
 // so the API is hidden and Google falls back to the password flow.
 

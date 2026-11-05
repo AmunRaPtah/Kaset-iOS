@@ -1,7 +1,7 @@
 import JavaScriptCore
 import Testing
 
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 /// The page scripts are Swift string literals holding JavaScript: an escape such as `\n`
 /// becomes a real newline inside a JS string and silently breaks the whole script on a device.
@@ -29,7 +29,7 @@ struct PageScriptTests {
     var navigator = { mediaSession: { setActionHandler: function () {}, metadata: null } };
     var location = { pathname: '/', search: '' };
     var window = {
-      webkit: { messageHandlers: { kaset: { postMessage: function (o) { __posts.push(o); } } } },
+      webkit: { messageHandlers: { ytmusicplus: { postMessage: function (o) { __posts.push(o); } } } },
       addEventListener: function () {},
       location: location,
       navigator: navigator
@@ -48,13 +48,13 @@ struct PageScriptTests {
         context.evaluateScript(PlayerScripts.page)
 
         #expect(context.exception == nil, "page script threw: \(context.exception?.toString() ?? "")")
-        #expect(context.evaluateScript("typeof window.__kaset").toString() == "object")
+        #expect(context.evaluateScript("typeof window.__ytmusicplus").toString() == "object")
         #expect(context.evaluateScript("__posts.length > 0 && __posts[0].kind").toString() == "boot")
         for command in ["play", "pause", "toggle", "next", "previous", "seek", "state",
                         "playQueueIndex", "removeQueueIndexAsync", "inspectQueue", "health", "shuffle", "repeat", "setInterrupted", "setBackgroundGuard"]
         {
             #expect(
-                context.evaluateScript("typeof window.__kaset.\(command)").toString() == "function",
+                context.evaluateScript("typeof window.__ytmusicplus.\(command)").toString() == "function",
                 "missing command \(command)"
             )
         }
@@ -63,16 +63,16 @@ struct PageScriptTests {
     @Test func commandsDegradeGracefullyWithoutADOM() {
         let context = self.makeContext()
         context.evaluateScript(PlayerScripts.page)
-        #expect(context.evaluateScript("window.__kaset.toggle()").toString() == "missing:playPause")
-        #expect(context.evaluateScript("window.__kaset.seek(10)").toString() == "no-media")
-        #expect(context.evaluateScript("typeof window.__kaset.inspectQueue()").toString() == "string")
+        #expect(context.evaluateScript("window.__ytmusicplus.toggle()").toString() == "missing:playPause")
+        #expect(context.evaluateScript("window.__ytmusicplus.seek(10)").toString() == "no-media")
+        #expect(context.evaluateScript("typeof window.__ytmusicplus.inspectQueue()").toString() == "string")
         #expect(context.exception == nil)
     }
 
     @Test func healthProbeReportsMissingPartsWithoutADOM() throws {
         let context = self.makeContext()
         context.evaluateScript(PlayerScripts.page)
-        let json = try #require(context.evaluateScript("JSON.stringify(window.__kaset.health())").toString())
+        let json = try #require(context.evaluateScript("JSON.stringify(window.__ytmusicplus.health())").toString())
         #expect(context.exception == nil, "health() threw: \(context.exception?.toString() ?? "")")
 
         let report = try #require(PlayerHealthReport.parse(json))

@@ -1,6 +1,6 @@
 import Testing
 
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 struct QueueReorderPlanTests {
     // ids: current = "c", then Up Next "a" "b" "d" "e" "f" "g" (positions 1...6)

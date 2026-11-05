@@ -1,5 +1,5 @@
 // UserAccount.swift
-// Kaset
+// YTMusicPlus
 //
 // Created for account switcher feature.
 

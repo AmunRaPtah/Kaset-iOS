@@ -1,10 +1,10 @@
 import Foundation
 
-// Copied from kaset Views/SingletonPlayerWebView+PlaybackAudioQuality.swift (page-side
+// Copied from ytmusicplus Views/SingletonPlayerWebView+PlaybackAudioQuality.swift (page-side
 // override of the requested stream quality). Injected at document start; `sync` re-applies
 // it to a live page after the setting changes.
 
-/// Requested stream quality. Same raw values as kaset's `PlaybackAudioQuality`.
+/// Requested stream quality. Same raw values as ytmusicplus's `PlaybackAudioQuality`.
 enum PlaybackAudioQuality: String, CaseIterable, Identifiable {
     case auto, low, normal, high
 
@@ -22,7 +22,7 @@ enum PlaybackAudioQuality: String, CaseIterable, Identifiable {
     static let storageKey = "settings.playbackAudioQuality"
 
     static var current: PlaybackAudioQuality {
-        UserDefaults.standard.string(forKey: self.storageKey).flatMap(Self.init(rawValue:)) ?? .auto
+        UserDefaults.standard.string(forKey: self.storageKey).flatMap(Self.init(rawValue:)) ?? .high
     }
 }
 
@@ -33,9 +33,9 @@ enum PlaybackAudioQualityScripts {
         """
         (function() {
             try {
-                localStorage.setItem('kasetPlaybackAudioQuality', '\(quality.rawValue)');
+                localStorage.setItem('ytmusicplusPlaybackAudioQuality', '\(quality.rawValue)');
             } catch (e) {}
-            window.__kasetPlaybackAudioQuality = '\(quality.rawValue)';
+            window.__ytmusicplusPlaybackAudioQuality = '\(quality.rawValue)';
         })();
         """
     }
@@ -46,11 +46,11 @@ enum PlaybackAudioQualityScripts {
         """
         (function() {
             try {
-                localStorage.setItem('kasetPlaybackAudioQuality', '\(quality.rawValue)');
+                localStorage.setItem('ytmusicplusPlaybackAudioQuality', '\(quality.rawValue)');
             } catch (e) {}
-            window.__kasetPlaybackAudioQuality = '\(quality.rawValue)';
-            if (typeof window.__kasetApplyPlaybackAudioQuality === 'function') {
-                window.__kasetApplyPlaybackAudioQuality();
+            window.__ytmusicplusPlaybackAudioQuality = '\(quality.rawValue)';
+            if (typeof window.__ytmusicplusApplyPlaybackAudioQuality === 'function') {
+                window.__ytmusicplusApplyPlaybackAudioQuality();
             }
         })();
         """
@@ -72,12 +72,12 @@ enum PlaybackAudioQualityScripts {
             }
 
             function currentQuality() {
-                if (typeof window.__kasetPlaybackAudioQuality === 'string') {
-                    return normalizedQuality(window.__kasetPlaybackAudioQuality);
+                if (typeof window.__ytmusicplusPlaybackAudioQuality === 'string') {
+                    return normalizedQuality(window.__ytmusicplusPlaybackAudioQuality);
                 }
 
                 try {
-                    return normalizedQuality(localStorage.getItem('kasetPlaybackAudioQuality'));
+                    return normalizedQuality(localStorage.getItem('ytmusicplusPlaybackAudioQuality'));
                 } catch (e) {
                     return 'auto';
                 }
@@ -429,7 +429,7 @@ enum PlaybackAudioQualityScripts {
             function collectAudioQualitySnapshot(quality, desired, applied, players) {
                 var snapshot = {
                     type: 'PLAYBACK_AUDIO_QUALITY_STATS',
-                    documentGeneration: window.__kasetDocumentGeneration,
+                    documentGeneration: window.__ytmusicplusDocumentGeneration,
                     preferred: quality,
                     desired: desired,
                     applied: !!applied,
@@ -549,9 +549,9 @@ enum PlaybackAudioQualityScripts {
                 } catch (e) {}
             }
 
-            window.__kasetApplyPlaybackAudioQuality = function() {
+            window.__ytmusicplusApplyPlaybackAudioQuality = function() {
                 var quality = currentQuality();
-                window.__kasetPlaybackAudioQuality = quality;
+                window.__ytmusicplusPlaybackAudioQuality = quality;
 
                 var applied = false;
                 var players = candidatePlayers();
@@ -576,7 +576,7 @@ enum PlaybackAudioQualityScripts {
             function applyNow() {
                 applyScheduled = false;
                 try {
-                    window.__kasetApplyPlaybackAudioQuality();
+                    window.__ytmusicplusApplyPlaybackAudioQuality();
                 } catch (e) {}
             }
 
@@ -604,8 +604,8 @@ enum PlaybackAudioQualityScripts {
 
             function attachVideoListeners() {
                 var v = document.querySelector('video');
-                if (!v || v.__kasetAudioQualityAttached) return;
-                v.__kasetAudioQualityAttached = true;
+                if (!v || v.__ytmusicplusAudioQualityAttached) return;
+                v.__ytmusicplusAudioQualityAttached = true;
                 ['loadedmetadata', 'loadeddata', 'canplay', 'playing', 'emptied']
                     .forEach(function(eventName) {
                         v.addEventListener(eventName, scheduleApply);

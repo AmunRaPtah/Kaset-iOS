@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 /// Seeded generator so the shuffles are reproducible.
 private struct SeededGenerator: RandomNumberGenerator {
@@ -81,7 +81,7 @@ struct ArtistMixTests {
         )
         #expect(mix.artists[0].id == "UCabc")
         let description = ArtistMixMarker.description(for: mix)
-        #expect(description.hasPrefix("Mix: עומר אדם, Eyal Golan, Jr. · Made with Kaset\n#kaset-mix "))
+        #expect(description.hasPrefix("Mix: עומר אדם, Eyal Golan, Jr. · Made with YTMusicPlus\n#ytmusicplus-mix "))
 
         let read = try #require(ArtistMixMarker.mix(from: description, playlistId: "PL1", title: "Route", thumbnailURL: nil))
         #expect(read.playlistId == "PL1")
@@ -94,8 +94,8 @@ struct ArtistMixTests {
     @Test func ordinaryPlaylistsAreNotMixes() {
         #expect(ArtistMixMarker.mix(from: nil, playlistId: "PL1", title: "x", thumbnailURL: nil) == nil)
         #expect(ArtistMixMarker.mix(from: "My road trip songs", playlistId: "PL1", title: "x", thumbnailURL: nil) == nil)
-        #expect(ArtistMixMarker.mix(from: "#kaset-mix {broken", playlistId: "PL1", title: "x", thumbnailURL: nil) == nil)
-        #expect(ArtistMixMarker.mix(from: "#kaset-mix {\"v\":1,\"a\":[],\"n\":50,\"s\":false,\"r\":true}", playlistId: "PL1", title: "x", thumbnailURL: nil) == nil)
+        #expect(ArtistMixMarker.mix(from: "#ytmusicplus-mix {broken", playlistId: "PL1", title: "x", thumbnailURL: nil) == nil)
+        #expect(ArtistMixMarker.mix(from: "#ytmusicplus-mix {\"v\":1,\"a\":[],\"n\":50,\"s\":false,\"r\":true}", playlistId: "PL1", title: "x", thumbnailURL: nil) == nil)
     }
 
     @Test func renamingKeepsTheSelectionButNewArtistsChangeIt() {
@@ -111,14 +111,14 @@ struct ArtistMixTests {
     }
 
     /// Owned playlists wrap the header in `musicEditablePlaylistDetailHeaderRenderer`, and
-    /// YouTube turns `#kaset-mix` into a separate (hashtag) run.
+    /// YouTube turns `#ytmusicplus-mix` into a separate (hashtag) run.
     @Test(.tags(.parser)) func theMixIsReadBackFromAnOwnedPlaylistPage() throws {
         let mix = ArtistMix(name: "Route", artists: [MixArtist(id: "UC1", name: "One", thumbnailURL: nil)])
         let description = ArtistMixMarker.description(for: mix)
         let parts = description.components(separatedBy: ArtistMixMarker.tag)
         let runs: [[String: Any]] = [
             ["text": parts[0]],
-            ["text": "#kaset-mix", "navigationEndpoint": ["browseEndpoint": ["browseId": "FEhashtag"]]],
+            ["text": "#ytmusicplus-mix", "navigationEndpoint": ["browseEndpoint": ["browseId": "FEhashtag"]]],
             ["text": " " + parts[1]],
         ]
         let header: [String: Any] = [
@@ -176,11 +176,11 @@ struct ArtistMixTests {
         let mix = ArtistMix(name: "D", artists: [MixArtist(id: "UC1", name: "One", thumbnailURL: nil)], discoveryPercent: 70)
         let read = try #require(ArtistMixMarker.mix(from: ArtistMixMarker.description(for: mix), playlistId: "PL1", title: "D", thumbnailURL: nil))
         #expect(read.discoveryPercent == 70)
-        let old = "#kaset-mix {\"a\":[[\"UC1\",\"One\"]],\"n\":50,\"r\":true,\"s\":false,\"v\":1}"
+        let old = "#ytmusicplus-mix {\"a\":[[\"UC1\",\"One\"]],\"n\":50,\"r\":true,\"s\":false,\"v\":1}"
         let legacy = try #require(ArtistMixMarker.mix(from: old, playlistId: "PL1", title: "D", thumbnailURL: nil))
         #expect(legacy.discoveryPercent == 0)
         // The former on/off toggle reads as 30 %.
-        let toggled = "#kaset-mix {\"a\":[[\"UC1\",\"One\"]],\"d\":true,\"n\":50,\"r\":true,\"s\":false,\"v\":1}"
+        let toggled = "#ytmusicplus-mix {\"a\":[[\"UC1\",\"One\"]],\"d\":true,\"n\":50,\"r\":true,\"s\":false,\"v\":1}"
         #expect(ArtistMixMarker.mix(from: toggled, playlistId: "PL1", title: "D", thumbnailURL: nil)?.discoveryPercent == 30)
         // Copies saved before the option existed, or with the toggle, still load.
         let cached = #"[{"name":"D","artists":[{"id":"UC1","name":"One"}],"length":"long","includesSimilarArtists":false,"skipsRecentlyPlayed":true}]"#

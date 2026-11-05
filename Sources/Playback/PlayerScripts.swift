@@ -4,9 +4,9 @@ import Foundation
 ///
 /// Evolved from the spike's `PageScript` (see `docs/spike-findings.md`): same Media Session
 /// ownership and keep-alive, plus a structured `state` message the native side mirrors.
-/// Player-bar selectors come from kaset `SingletonPlayerWebView+ObserverScript.swift`.
+/// Player-bar selectors come from ytmusicplus `SingletonPlayerWebView+ObserverScript.swift`.
 enum PlayerScripts {
-    static let bridgeName = "kaset"
+    static let bridgeName = "ytmusicplus"
 
     static func literal(_ value: String) -> String {
         guard let data = try? JSONSerialization.data(withJSONObject: [value]),
@@ -15,9 +15,9 @@ enum PlayerScripts {
         return String(json.dropFirst().dropLast())
     }
 
-    /// Locates the slotted player bar and its parts (kaset `playerBarLookupFunctionJS`).
+    /// Locates the slotted player bar and its parts (ytmusicplus `playerBarLookupFunctionJS`).
     static let playerBarLookup = """
-    const __kasetPlayerBarSelectors = {
+    const __ytmusicplusPlayerBarSelectors = {
         title: '.ytmusic-player-bar.title, .ytmusicTrackInfoTitle',
         byline: '.ytmusic-player-bar.byline, .ytmusicTrackInfoByline',
         thumbnail: '.ytmusic-player-bar .thumbnail img, ytmusic-player-bar .image, img.ytmusicTrackInfoThumbnail',
@@ -30,16 +30,16 @@ enum PlayerScripts {
         likeButton: 'like-button-view-model button',
         dislikeButton: 'dislike-button-view-model button'
     };
-    function __kasetPlayerBar() {
+    function __ytmusicplusPlayerBar() {
         return document.querySelector('[slot="player-bar"]') || document.querySelector('ytmusic-player-bar');
     }
-    function __kasetPlayerBarElement(name, playerBar = __kasetPlayerBar()) {
-        return playerBar ? playerBar.querySelector(__kasetPlayerBarSelectors[name]) : null;
+    function __ytmusicplusPlayerBarElement(name, playerBar = __ytmusicplusPlayerBar()) {
+        return playerBar ? playerBar.querySelector(__ytmusicplusPlayerBarSelectors[name]) : null;
     }
     """
 
     /// Starts a track inside the loaded web app, without a page load: through the router
-    /// (`ytmusic-app.resolveCommand`, as kaset does) or, where that method is gone, by firing the
+    /// (`ytmusic-app.resolveCommand`, as ytmusicplus does) or, where that method is gone, by firing the
     /// app's own `yt-navigate` event. Returns the mechanism used, or `false` when neither exists;
     /// the caller checks that the track really changed.
     static func watchEndpointScript(videoId: String, playlistId: String?) -> String {
@@ -80,7 +80,7 @@ enum PlayerScripts {
     static var page: String {
         """
         (function () {
-          if (window.__kaset) { return; }
+          if (window.__ytmusicplus) { return; }
           \(self.playerBarLookup)
 
           const post = (o) => {
@@ -89,7 +89,7 @@ enum PlayerScripts {
           const visDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
           const realVis = () => { try { return visDesc.get.call(document); } catch (e) { return 'unknown'; } };
           const media = () => document.querySelector('video') || document.querySelector('audio');
-          // The slotted-bar lookup (kaset) is tried first; the spike's plain selectors and the
+          // The slotted-bar lookup (ytmusicplus) is tried first; the spike's plain selectors and the
           // player API are fallbacks so controls keep working if the DOM shape differs.
           const legacy = {
             playPause: '.play-pause-button.ytmusic-player-bar',
@@ -98,7 +98,7 @@ enum PlayerScripts {
           };
           const control = (name) => {
             let b = null;
-            try { b = __kasetPlayerBarElement(name); } catch (e) {}
+            try { b = __ytmusicplusPlayerBarElement(name); } catch (e) {}
             if (!b && legacy[name]) { b = document.querySelector(legacy[name]); }
             return b;
           };
@@ -108,7 +108,7 @@ enum PlayerScripts {
             return document.getElementById('movie_player');
           };
           // When the user (or a command from the app) caused a pause, the guard below must not undo it.
-          const markUserAction = () => { window.__kasetUserActionAt = Date.now(); };
+          const markUserAction = () => { window.__ytmusicplusUserActionAt = Date.now(); };
           const click = (name) => {
             if (name === 'playPause') { markUserAction(); }
             const b = control(name);
@@ -164,7 +164,7 @@ enum PlayerScripts {
             const n = el.querySelector(sel);
             return n ? n.textContent.trim() : '';
           };
-          // Same reading as kaset's queue injection: the video id sits at a varying depth.
+          // Same reading as ytmusicplus's queue injection: the video id sits at a varying depth.
           const firstVideoId = (root) => {
             const seen = new Set();
             const visit = (value, depth) => {
@@ -184,7 +184,7 @@ enum PlayerScripts {
           const QUEUE_ITEMS = 'ytmusic-player-queue-item, ytmusic-player-queue-item-renderer, '
             + 'ytmusic-player-queue ytmusic-responsive-list-item-renderer';
           const queueItemIsCurrent = (el) => {
-            if (el.__kasetIsCurrent === true) { return true; }
+            if (el.__ytmusicplusIsCurrent === true) { return true; }
             if (el.hasAttribute('selected') || el.hasAttribute('is-playlist-panel-video-renderer-selected')) { return true; }
             const aria = el.getAttribute('aria-current');
             if (aria === 'true' || aria === 'page') { return true; }
@@ -217,12 +217,12 @@ enum PlayerScripts {
           };
 
           \(AdDetectionScript.detection)
-          window.__kasetAdAutoSkip = \(AdSkip.isEnabled ? "true" : "false");
+          window.__ytmusicplusSilenceSkip = \(SilenceSkip.isEnabled ? "true" : "false");
           const adNow = () => { try { return !!isAdShowing(); } catch (e) { return false; } };
 
           // Seconds of the current track already loaded past the playhead (BufferScripts).
           const bufferAhead = () => {
-            try { return window.__kasetBuffer ? window.__kasetBuffer.ahead() : null; } catch (e) { return null; }
+            try { return window.__ytmusicplusBuffer ? window.__ytmusicplusBuffer.ahead() : null; } catch (e) { return null; }
           };
 
           let lastQueueKey = '';
@@ -259,15 +259,32 @@ enum PlayerScripts {
               }
             }, true);
           });
+
+          // Silence skip: zero/very-short-duration tracks auto-advance on the page.
+          // When enabled, click next to skip them before the user notices.
+          let lastEndedTime = 0;
+          document.addEventListener('ended', (e) => {
+            const m = e.target;
+            if (!m || !/^(VIDEO|AUDIO)$/.test(m.tagName)) { return; }
+            if (window.__ytmusicplusSilenceSkip && m.duration < 0.5) {
+              const now = Date.now();
+              if (now - lastEndedTime < 2000) { return; }
+              lastEndedTime = now;
+              setTimeout(() => {
+                const skipBtn = document.querySelector('.next-button.ytmusic-player-bar, .ytmusicPlayerControlsNextButton button');
+                if (skipBtn) { skipBtn.click(); post({ kind: 'silence', via: 'skip' }); }
+              }, 100);
+            }
+          }, true);
           // Backgrounding can make WebKit pause the media a few milliseconds after the app resigns
           // active. The app arms this guard just before that; the pause is undone inside the same
           // JS turn, so the gap is a few milliseconds instead of a round trip through Swift.
           document.addEventListener('pause', (e) => {
-            const until = window.__kasetBackgroundGuardUntil || 0;
-            if (Date.now() > until || window.__kasetInterrupted) { return; }
+            const until = window.__ytmusicplusBackgroundGuardUntil || 0;
+            if (Date.now() > until || window.__ytmusicplusInterrupted) { return; }
             const t = e.target;
             if (!t || !t.tagName || !/^(VIDEO|AUDIO)$/.test(t.tagName) || t.ended) { return; }
-            if (Date.now() - (window.__kasetUserActionAt || 0) < 2000) { return; }
+            if (Date.now() - (window.__ytmusicplusUserActionAt || 0) < 2000) { return; }
             const p = t.play();
             if (p && p.catch) { p.catch(() => {}); }
             post({ kind: 'bg', via: 'js-resume' });
@@ -289,28 +306,6 @@ enum PlayerScripts {
             post(Object.assign(state('hb', true), { kind: 'state', hb: true }));
           }, 1000);
 
-          // Optional ad skipping: when an ad is playing and the setting is on, press next (the
-          // page then moves past the ad). A fallback seeks the ad to its end. Rate limited so a
-          // wrong detection can never skip more than one item every few seconds.
-          let lastAdSkip = 0;
-          const skipAdIfNeeded = () => {
-            if (!window.__kasetAdAutoSkip || !adNow()) { return; }
-            const now = Date.now();
-            if (now - lastAdSkip < 4000) { return; }
-            lastAdSkip = now;
-            const skipButton = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button');
-            if (skipButton) { skipButton.click(); post({ kind: 'ad', via: 'skip-button' }); return; }
-            const result = click('next');
-            if (result === 'clicked') { post({ kind: 'ad', via: 'next' }); return; }
-            const m = media();
-            if (m && isFinite(m.duration) && m.duration > 0) {
-              m.currentTime = m.duration;
-              post({ kind: 'ad', via: 'seek-end' });
-            }
-          };
-          setInterval(skipAdIfNeeded, 500);
-          document.addEventListener('playing', skipAdIfNeeded, true);
-
           // "Are you still listening?" (ytmusic-you-there-renderer) after a long session without
           // touching the page. While it is open YouTube pauses every new track right after it
           // starts. 1) keep the page's last-activity stamp fresh so it does not come up,
@@ -321,7 +316,7 @@ enum PlayerScripts {
           document.addEventListener('pause', (e) => {
             const t = e.target;
             if (!t || !t.tagName || !/^(VIDEO|AUDIO)$/.test(t.tagName) || t.ended) { return; }
-            if (Date.now() - (window.__kasetUserActionAt || 0) < 2000) { return; }
+            if (Date.now() - (window.__ytmusicplusUserActionAt || 0) < 2000) { return; }
             const dlg = document.querySelector(STILL_THERE);
             if (dlg && dlg.offsetParent !== null) { dialogPausedAt = Date.now(); }
           }, true);
@@ -385,7 +380,7 @@ enum PlayerScripts {
           let ctx = null;
           function keepAlive() {
             // While a phone call (or other takeover) owns the audio, stay out of the way.
-            if (window.__kasetInterrupted) { return; }
+            if (window.__ytmusicplusInterrupted) { return; }
             try {
               if (!ctx) {
                 const AC = window.AudioContext || window.webkitAudioContext;
@@ -400,7 +395,7 @@ enum PlayerScripts {
                 osc.start();
                 ctx.onstatechange = () => {
                   post({ kind: 'ka', state: ctx.state });
-                  if (window.__kasetInterrupted) { return; }
+                  if (window.__ytmusicplusInterrupted) { return; }
                   if (ctx.state === 'interrupted' || ctx.state === 'suspended') { ctx.resume().catch(() => {}); }
                 };
               }
@@ -410,7 +405,7 @@ enum PlayerScripts {
           document.addEventListener('playing', keepAlive, true);
           document.addEventListener('pause', keepAlive, true);
 
-          window.__kaset = {
+          window.__ytmusicplus = {
             state: () => state('poll', true),
             play: () => {
               const m = media();
@@ -607,11 +602,11 @@ enum PlayerScripts {
             // A phone call (or similar) takes the audio: pause the media and the keep-alive
             // context, and keep the page from resuming either until it is over.
             setBackgroundGuard: (ms) => {
-              window.__kasetBackgroundGuardUntil = Date.now() + ms;
+              window.__ytmusicplusBackgroundGuardUntil = Date.now() + ms;
               return 'armed';
             },
             setInterrupted: (flag) => {
-              window.__kasetInterrupted = !!flag;
+              window.__ytmusicplusInterrupted = !!flag;
               const m = media();
               if (flag) {
                 if (m && !m.paused) { m.pause(); }
@@ -638,11 +633,11 @@ enum PlayerScripts {
               const md = navigator.mediaSession && navigator.mediaSession.metadata;
               add('mediaSession', md && md.title, md && md.title ? md.title : 'no metadata', true);
               let bar = null;
-              try { bar = __kasetPlayerBar(); } catch (e) {}
+              try { bar = __ytmusicplusPlayerBar(); } catch (e) {}
               add('playerBar', bar, bar ? bar.tagName.toLowerCase() : 'absent', false);
               ['playPause', 'next', 'previous'].forEach((name) => {
                 let el = null;
-                try { el = __kasetPlayerBarElement(name); } catch (e) {}
+                try { el = __ytmusicplusPlayerBarElement(name); } catch (e) {}
                 const fallback = !el && legacy[name] ? document.querySelector(legacy[name]) : null;
                 add(name, el || fallback, el ? '' : (fallback ? 'legacy selector only' : 'not found'), false);
               });
@@ -651,7 +646,7 @@ enum PlayerScripts {
               const repeatAttr = bar && (bar.hasAttribute('repeat-mode_') || bar.hasAttribute('repeat-mode'));
               add('repeat', repeatButton() && repeatAttr, (repeatButton() ? 'button' : 'no button') + ', ' + (repeatAttr ? 'mode=' + repeatMode() : 'no repeat-mode attribute'), false);
               let menu = null;
-              try { menu = __kasetPlayerBarElement('menu'); } catch (e) {}
+              try { menu = __ytmusicplusPlayerBarElement('menu'); } catch (e) {}
               if (!menu && bar) {
                 menu = Array.from(bar.querySelectorAll('button')).find((b) => (b.getAttribute('aria-label') || '').toLowerCase() === 'action menu') || null;
               }
@@ -664,7 +659,7 @@ enum PlayerScripts {
               const current = items.filter((e) => e.current).length;
               add('queueCurrent', current === 1, current + ' marked current', true);
               let summary = 'buffer script not loaded';
-              try { if (window.__kasetBuffer) { summary = window.__kasetBuffer.summary(); } } catch (e) {}
+              try { if (window.__ytmusicplusBuffer) { summary = window.__ytmusicplusBuffer.summary(); } } catch (e) {}
               const ahead = bufferAhead();
               // Informational: an empty buffer at the end of a track is normal; only a missing readout fails.
               add('buffer', ahead !== null, (ahead === null ? '?' : ahead) + ' s ahead · ' + summary, true);

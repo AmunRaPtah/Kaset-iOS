@@ -10,7 +10,7 @@ protocol CookieVault: Sendable {
 
 /// Keychain, this device only, readable after the first unlock (so background refreshes work).
 struct KeychainCookieVault: CookieVault {
-    var service = "dev.emoona.kaset.auth"
+    var service = "com.enniol.ytmusicplus.auth"
     var account = "youtube-music-cookies"
 
     private var query: [String: Any] {

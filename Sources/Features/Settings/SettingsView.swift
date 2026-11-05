@@ -5,11 +5,11 @@ struct SettingsView: View {
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
 
-    @AppStorage(PlaybackAudioQuality.storageKey) private var audioQuality = PlaybackAudioQuality.auto.rawValue
+    @AppStorage(PlaybackAudioQuality.storageKey) private var audioQuality = PlaybackAudioQuality.high.rawValue
     @AppStorage(ContentLanguage.storageKey) private var language = ContentLanguage.system.rawValue
     @AppStorage(Haptics.storageKey) private var haptics = true
     @AppStorage("nativeNowPlaying") private var nativeNowPlaying = true
-    @AppStorage(AdSkip.storageKey) private var adAutoSkip = false
+    @AppStorage(SilenceSkip.storageKey) private var silenceSkip = false
     @AppStorage("settings.handlePhoneCalls") private var handlePhoneCalls = true
     @AppStorage(BufferPolicy.adaptiveQualityStorageKey) private var adaptiveQuality = true
     @AppStorage(BufferPolicy.extendedStorageKey) private var extendedBuffer = false
@@ -30,13 +30,11 @@ struct SettingsView: View {
                     }
                     .onChange(of: self.audioQuality) { _, _ in self.environment.player.applyAudioQuality() }
                     Toggle("Haptic feedback", isOn: self.$haptics)
-                    Toggle("Skip ads automatically", isOn: self.$adAutoSkip)
+                    Toggle("Skip silence (zero-duration tracks)", isOn: self.$silenceSkip)
+                        .onChange(of: self.silenceSkip) { _, _ in self.environment.player.applySilenceSkipSetting() }
                 } header: {
                     Text("Playback")
-                } footer: {
-                    Text("Skipping ads is an opt-in and may go against YouTube's terms of service.")
                 }
-                .onChange(of: self.adAutoSkip) { _, _ in self.environment.player.applyAdSkipSetting() }
 
                 Section {
                     Toggle("Lower quality on a weak network", isOn: self.$adaptiveQuality)

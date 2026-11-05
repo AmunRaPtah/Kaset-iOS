@@ -1,6 +1,6 @@
 import Testing
 
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 struct LyricsTests {
     /// Lines carry a random id, so each value is built once and compared to itself.

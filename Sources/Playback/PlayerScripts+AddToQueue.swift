@@ -3,7 +3,7 @@ import Foundation
 extension PlayerScripts {
     /// Appends a song to the end of the page's queue.
     ///
-    /// Same mechanism as `playNext` (kaset `queueInjectionScript`): the player bar's own menu
+    /// Same mechanism as `playNext` (ytmusicplus `queueInjectionScript`): the player bar's own menu
     /// carries a `queueAddEndpoint` item; its target video is substituted for the click and
     /// restored. Here the item is the one inserting at the end of the queue, and success is
     /// confirmed by reading the page's queue model back. Result arrives as `queueResult`.
@@ -115,8 +115,8 @@ extension PlayerScripts {
 
             function openMenu() {
                 if (done) return;
-                const bar = __kasetPlayerBar();
-                const button = bar && (__kasetPlayerBarElement('menu', bar)
+                const bar = __ytmusicplusPlayerBar();
+                const button = bar && (__ytmusicplusPlayerBarElement('menu', bar)
                     || bar.querySelector('ytmusic-menu-renderer button, ytmusic-menu-renderer tp-yt-paper-icon-button'));
                 if (!button) {
                     if (Date.now() - startedAt < 8000) { setTimeout(openMenu, 150); return; }

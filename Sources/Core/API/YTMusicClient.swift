@@ -1,10 +1,10 @@
 import Foundation
 import SwiftUI
 
-// Trimmed from kaset: Services/API/YTMusicClient.swift (request building, auth headers,
+// Trimmed from ytmusicplus: Services/API/YTMusicClient.swift (request building, auth headers,
 // error mapping, pagination, API key resolution). Only Home/browse, Search, suggestions and
 // their continuations are carried so far; later steps add Library, detail screens, actions.
-// Auth comes from `AuthStore` instead of kaset's AuthService/WebKitManager.
+// Auth comes from `AuthStore` instead of ytmusicplus's AuthService/WebKitManager.
 
 // MARK: - PaginatedContentType
 
@@ -125,7 +125,7 @@ final class YTMusicClient {
 
     // MARK: - Search
 
-    /// Search, optionally restricted to one kind (YouTube Music's own filter params, from kaset).
+    /// Search, optionally restricted to one kind (YouTube Music's own filter params, from ytmusicplus).
     func search(query: String, filter: SearchFilter = .all) async throws -> SearchResponse {
         var body: [String: Any] = ["query": query]
         if let params = filter.params { body["params"] = params }
@@ -319,7 +319,7 @@ final class YTMusicClient {
 // MARK: - YTMusicAPIKeyResolver
 
 /// Resolves the web client's public Innertube API key from the music.youtube.com page
-/// instead of storing one in source (kaset `YTMusicAPIKeyResolver`).
+/// instead of storing one in source (ytmusicplus `YTMusicAPIKeyResolver`).
 @MainActor
 final class YTMusicAPIKeyResolver {
     nonisolated static let environmentVariable = "KASET_YTMUSIC_API_KEY"
@@ -388,7 +388,7 @@ final class YTMusicAPIKeyResolver {
     }
 }
 
-/// Result kinds the search screen can restrict to. The `params` strings are the ones kaset's
+/// Result kinds the search screen can restrict to. The `params` strings are the ones ytmusicplus's
 /// `YTMusicClient.SearchFilterParams` sends.
 enum SearchFilter: String, CaseIterable, Identifiable {
     case all, songs, artists, albums, playlists, videos

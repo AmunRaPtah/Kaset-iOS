@@ -1,6 +1,6 @@
 import Foundation
 
-/// Result of `window.__kaset.health()`: which parts of the YouTube Music page the app drives
+/// Result of `window.__ytmusicplus.health()`: which parts of the YouTube Music page the app drives
 /// still respond. A YouTube Music DOM change shows up here as a failing check.
 struct PlayerHealthReport: Equatable, Sendable {
     enum Status: Equatable, Sendable {

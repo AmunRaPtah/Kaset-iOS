@@ -87,7 +87,7 @@ struct ArtistDetailView: View {
                         self.header(detail, model: model)
                         self.topSongs(detail)
                         if detail.orderedSections.isEmpty {
-                            // Same fallback as kaset: when the page has no ordered sections the
+                            // Same fallback as ytmusicplus: when the page has no ordered sections the
                             // typed collections are shown in a fixed order.
                             self.shelf("Albums", detail.albums.map(MediaEntity.init))
                             self.shelf("Singles & EPs", detail.singles.map(MediaEntity.init))

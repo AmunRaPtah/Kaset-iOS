@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Animated "now playing" bars, like kaset's `EqualizerView`.
+/// Animated "now playing" bars, like ytmusicplus's `EqualizerView`.
 ///
 /// The bars are Core Animation layers with repeating animations, so the render server draws
 /// every frame; a SwiftUI `repeatForever` animation would re-render the whole list row view

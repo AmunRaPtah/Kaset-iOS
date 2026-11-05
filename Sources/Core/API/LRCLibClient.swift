@@ -1,6 +1,6 @@
 import Foundation
 
-// Ported from kaset: Services/Lyrics/Providers/LRCLibProvider.swift. YouTube Music rarely
+// Ported from ytmusicplus: Services/Lyrics/Providers/LRCLibProvider.swift. YouTube Music rarely
 // returns timed lyrics to the web client; LRCLib (a free, open lyrics database) fills the gap.
 
 /// Searches lrclib.net for a track; prefers the entry whose length is closest to the track's.
@@ -23,7 +23,7 @@ enum LRCLibClient {
         guard let url = components.url else { return .unavailable }
 
         var request = URLRequest(url: url, timeoutInterval: 10)
-        request.setValue("Kaset-iOS (https://github.com/emoonadev)", forHTTPHeaderField: "User-Agent")
+        request.setValue("YTMusicPlus-iOS (https://github.com/ennioldev)", forHTTPHeaderField: "User-Agent")
 
         guard let (data, response) = try? await URLSession.shared.data(for: request),
               (response as? HTTPURLResponse)?.statusCode == 200,

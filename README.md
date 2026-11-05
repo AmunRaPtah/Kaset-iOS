@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="Sources/App/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="140" alt="Kaset icon">
+  <img src="Sources/App/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="140" alt="YTMusic+ icon">
 </p>
 
-<h1 align="center">Kaset for iOS</h1>
+<h1 align="center">YTMusic+ for iOS</h1>
 
 <p align="center">
   A native SwiftUI YouTube Music client for iPhone, built to keep playing with the screen locked.
@@ -10,12 +10,12 @@
 
 ---
 
-Kaset for iOS is an unofficial, open-source YouTube Music client. The interface is fully native
+YTMusic+ for iOS is an unofficial, open-source YouTube Music client. The interface is fully native
 (SwiftUI, Liquid Glass, iOS 26), while playback is delegated to the real YouTube Music web
 player running in a hidden web view. That gives you background playback, lock-screen and
 AirPods controls, and an Apple Music-like interface, with your own YouTube Music account.
 
-It is **inspired by, and adapted from, [Kaset for macOS](https://github.com/sozercan/kaset)**
+It is **inspired by, and adapted from, [YTMusicPlus for macOS](https://github.com/sozercan/ytmusicplus)**
 by [@sozercan](https://github.com/sozercan): the InnerTube client, response parsers, models,
 playback-bridge scripts and the app icon come from there. This project exists because the
 macOS app's player stack could not be shared with iOS as is, so the pieces that matter were
@@ -79,7 +79,7 @@ carried over and the player was rebuilt for iOS.
 Sources/
   App/        entry point, environment, preferences, localization, assets
   Auth/       cookie archive (Keychain), login, SAPISIDHASH, account switching
-  Core/       InnerTube client, models, parsers (adapted from Kaset macOS)
+  Core/       InnerTube client, models, parsers (adapted from YTMusicPlus for macOS)
   Playback/   WebPlayer, page scripts, state, Now Playing, audio session
   Features/   Home, Discover, Collections, Search, Detail, Now Playing, Settings, Shell
   Debug/      log and diagnostic screens
@@ -99,10 +99,10 @@ approach (background playback, keep-alive, lock-screen controls).
 ## Build and run
 
 ```bash
-git clone https://github.com/emoonadev/Kaset-iOS.git
-cd Kaset-iOS
+git clone https://github.com/enniol/YTMusicPlus-iOS.git
+cd YTMusicPlus-iOS
 xcodegen generate
-open KasetiOS.xcodeproj
+open YTMusicPlus.xcodeproj
 ```
 
 Select your team under **Signing & Capabilities**, choose your iPhone, and run.
@@ -114,7 +114,7 @@ The app is meant to be sideloaded, not distributed through the App Store:
 - A **free Apple ID** works, but the provisioning profile expires after **7 days** and you can
   have a limited number of apps and App IDs; re-run from Xcode to renew it.
 - A paid developer account lifts these limits (profiles last a year).
-- Change the bundle identifier (`dev.emoona.kaset` in `project.yml`) to one you own.
+- Change the bundle identifier (`com.enniol.ytmusicplus` in `project.yml`) to one you own.
 - Background audio uses the standard `audio` background mode; no special entitlement is needed.
 - CarPlay needs an entitlement that sideloaded builds cannot have, so it is not supported.
 
@@ -122,7 +122,7 @@ The app is meant to be sideloaded, not distributed through the App Store:
 
 ```bash
 xcodebuild test \
-  -project KasetiOS.xcodeproj -scheme KasetiOS \
+  -project YTMusicPlus.xcodeproj -scheme YTMusicPlus \
   -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
@@ -142,16 +142,16 @@ See the [roadmap](ROADMAP.md) for what is planned next.
 ## Contributing
 
 Issues and pull requests are welcome. A few ground rules: verify an endpoint against the real
-service (or Kaset's `api-explorer`) before writing a parser, keep the web view as the source of
+service (or YTMusicPlus's `api-explorer`) before writing a parser, keep the web view as the source of
 truth for playback, and never put cookies, tokens or personal responses in code, logs or fixtures.
 
 ## Acknowledgements
 
-- [**Kaset for macOS**](https://github.com/sozercan/kaset) by Sertaç Özercan – the project this
+- [**YTMusicPlus for macOS**](https://github.com/sozercan/ytmusicplus) by Sertaç Özercan – the project this
   one is inspired by and adapted from. Thank you.
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ## License
 
-[MIT](LICENSE). Portions adapted from Kaset for macOS are covered by its MIT license, reproduced
+[MIT](LICENSE). Portions adapted from YTMusicPlus for macOS are covered by its MIT license, reproduced
 in the same file.

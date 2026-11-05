@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 struct PlaybackStateTests {
     private let t0 = Date(timeIntervalSince1970: 1_000)

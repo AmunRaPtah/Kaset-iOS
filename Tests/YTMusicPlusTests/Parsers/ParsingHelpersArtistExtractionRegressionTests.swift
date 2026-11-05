@@ -1,5 +1,5 @@
 import Testing
-@testable import KasetiOS
+@testable import YTMusicPlus
 
 struct ParsingHelpersArtistExtractionRegressionTests {
     @Test("Extract artists excludes content labels, play counts, and durations")

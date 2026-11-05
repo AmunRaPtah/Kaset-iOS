@@ -10,7 +10,7 @@ accounts, tests of 5–10 minutes.
 |---|---|---|
 | Does a `WKWebView` keep playing with the screen locked? | **Yes** | Heartbeats every 5 s with `vis=hidden`, `maxJSGap=6s`, `nativeTicks` regular |
 | Does the playlist advance by itself in the background? | **Yes** | `tracks=3..4`, `ended=1..2` per background session; track titles change while `vis=hidden` |
-| Does it work with the hidden 1×1 web view (Kaset's layout)? | **Yes** | Confirmed by the user |
+| Does it work with the hidden 1×1 web view (YTMusic+ layout)? | **Yes** | Confirmed by the user |
 | Premium vs logged-out | Both work | Confirmed by the user |
 | Lock-screen next / previous | **No by default** (shows ±10 s), **yes** with page-level `mediaSession` handlers | `[remote] mediaSession nexttrack/previoustrack` reach the page |
 | Pause from lock screen, wait, press play | **Fails** without keep-alive: WebContent frozen 152 s, Now Playing widget cleared, stream stalls at the same second then `emptied`. **Works** with keep-alive | App process stayed alive (`nativeTicks=36`, `maxNativeGap=5s`) while page heartbeats stopped; with keep-alive 160 s of heartbeats during pause and play resumes |
@@ -141,5 +141,5 @@ mobile UA and then playing with the desktop UA worked in the spike.
 - Sessions longer than ~10 minutes; battery cost of the permanent `AudioContext`.
 - Behaviour under memory pressure / `WEBCONTENT PROCESS TERMINATED`.
 - Phone call, Bluetooth/AirPods connect-disconnect, network handover.
-- Whether Kaset's native `NowPlayingManager` can own lock-screen metadata on iOS.
+- Whether YTMusicPlus's native `NowPlayingManager` can own lock-screen metadata on iOS.
 - The `ytmusic-you-there-renderer` "continue listening?" auto-confirm selector (guessed).

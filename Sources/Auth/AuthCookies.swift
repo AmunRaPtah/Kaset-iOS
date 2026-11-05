@@ -1,7 +1,7 @@
 import CryptoKit
 import Foundation
 
-// Adapted from kaset: Services/WebKit/WebKitManager+Cookies.swift (allowlist, validity,
+// Adapted from ytmusicplus: Services/WebKit/WebKitManager+Cookies.swift (allowlist, validity,
 // archive), WebKitManager+AuthMaterial.swift (domain matching, SAPISID selection) and
 // Services/API/InnerTubeSupport.swift (SAPISIDHASH). The restore-policy/transaction
 // machinery is intentionally not copied: the iOS app archives one blob in the Keychain.

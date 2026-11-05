@@ -1,6 +1,6 @@
-name: KasetiOS
+name: YTMusicPlus
 options:
-  bundleIdPrefix: dev.emoona
+  bundleIdPrefix: com.enniol
   deploymentTarget:
     iOS: "26.0"
   createIntermediateGroups: true
@@ -9,7 +9,7 @@ settings:
     SWIFT_VERSION: "6.0"
     CODE_SIGN_STYLE: Automatic
 targets:
-  KasetiOS:
+  YTMusicPlus:
     type: application
     platform: iOS
     sources:
@@ -17,14 +17,14 @@ targets:
     info:
       path: Sources/Info.plist
       properties:
-        CFBundleDisplayName: Kaset
+        CFBundleDisplayName: YTMusic+
         CFBundleLocalizations: [en, fr]
         CFBundleDevelopmentRegion: en
         UIBackgroundModes:
           - audio
           - fetch
         BGTaskSchedulerPermittedIdentifiers:
-          - dev.emoona.kaset.newReleases
+          - com.enniol.ytmusicplus.newReleases
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
@@ -35,19 +35,19 @@ targets:
         LSSupportsOpeningDocumentsInPlace: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.emoona.kaset
-        PRODUCT_NAME: KasetiOS
+        PRODUCT_BUNDLE_IDENTIFIER: com.enniol.ytmusicplus
+        PRODUCT_NAME: YTMusicPlus
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         MARKETING_VERSION: "0.1"
         CURRENT_PROJECT_VERSION: "1"
-  KasetiOSTests:
+  YTMusicPlusTests:
     type: bundle.unit-test
     platform: iOS
     sources:
-      - Tests/KasetiOSTests
+      - Tests/YTMusicPlusTests
     dependencies:
-      - target: KasetiOS
+      - target: YTMusicPlus
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
-        PRODUCT_BUNDLE_IDENTIFIER: dev.emoona.kaset.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.enniol.ytmusicplus.tests

@@ -10,7 +10,7 @@ import UserNotifications
 @MainActor
 @Observable
 final class NewReleaseWatcher {
-    static let taskIdentifier = "dev.emoona.kaset.newReleases"
+    static let taskIdentifier = "dev.enniol.ytmusicplus.newReleases"
     static let notificationsStorageKey = "settings.newReleaseNotifications"
 
     /// A background refresh gets about 30 s; one artist page takes well under a second.
