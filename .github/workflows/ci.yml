@@ -26,36 +26,23 @@ jobs:
             -derivedDataPath build/dd \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Write export options
+      - name: Build and package IPA
         run: |
-          mkdir -p build
-          cat > build/exportOptions.plist <<'PLIST'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>development</string>
-          </dict>
-          </plist>
-          PLIST
-
-      - name: Archive and export IPA
-        run: |
+          mkdir -p build/Payload
           xcodebuild \
             -project YTMusicPlus.xcodeproj \
             -scheme YTMusicPlus \
             -configuration Release \
             -sdk iphoneos \
-            -archivePath build/YTMusicPlus.xcarchive \
+            -destination generic/platform=iOS \
             -derivedDataPath build/dd \
             CODE_SIGNING_ALLOWED=NO \
-            -quiet archive
-          xcodebuild -exportArchive \
-            -archivePath build/YTMusicPlus.xcarchive \
-            -exportFormat ipa \
-            -exportPath build/ipa \
-            -exportOptionsPlist build/exportOptions.plist
+            -quiet \
+            ONLY_ACTIVE_ARCH=NO \
+            | tee build/build.log
+          cp -r build/dd/Build/Products/Release-iphoneos/YTMusicPlus.app build/Payload/
+          cd build && zip -r ipa/YTMusicPlus.ipa Payload
+          cd ..
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
