@@ -26,6 +26,19 @@ jobs:
             -derivedDataPath build/dd \
             CODE_SIGNING_ALLOWED=NO
 
+      - name: Write export options
+        run: |
+          cat > build/exportOptions.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>development</string>
+          </dict>
+          </plist>
+          PLIST
+
       - name: Archive and export IPA
         run: |
           xcodebuild \
@@ -41,16 +54,7 @@ jobs:
             -archivePath build/YTMusicPlus.xcarchive \
             -exportFormat ipa \
             -exportPath build/ipa \
-            -exportOptionsPlist <<EOF
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-            <plist version="1.0">
-            <dict>
-              <key>method</key>
-              <string>development</string>
-            </dict>
-            </plist>
-            EOF
+            -exportOptionsPlist build/exportOptions.plist
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
