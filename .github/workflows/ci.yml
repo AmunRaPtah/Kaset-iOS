@@ -25,3 +25,36 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             -derivedDataPath build/dd \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Archive and export IPA
+        run: |
+          xcodebuild \
+            -project YTMusicPlus.xcodeproj \
+            -scheme YTMusicPlus \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath build/YTMusicPlus.xcarchive \
+            -derivedDataPath build/dd \
+            CODE_SIGNING_ALLOWED=NO \
+            -quiet archive
+          xcodebuild -exportArchive \
+            -archivePath build/YTMusicPlus.xcarchive \
+            -exportFormat ipa \
+            -exportPath build/ipa \
+            -exportOptionsPlist <<EOF
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict>
+              <key>method</key>
+              <string>development</string>
+            </dict>
+            </plist>
+            EOF
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: YTMusicPlus-ipa
+          path: build/ipa/YTMusicPlus.ipa
+          retention-days: 7
