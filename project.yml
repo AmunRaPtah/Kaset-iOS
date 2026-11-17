@@ -38,8 +38,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.enniol.ytmusicplus
         PRODUCT_NAME: YTMusicPlus
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        MARKETING_VERSION: "0.1"
-        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "2"
   YTMusicPlusTests:
     type: bundle.unit-test
     platform: iOS

@@ -28,24 +28,28 @@ jobs:
 
       - name: Build and package IPA
         run: |
-          mkdir -p build/Payload build/ipa
-          xcodebuild \
+          set -euo pipefail
+          xcodebuild build \
             -project YTMusicPlus.xcodeproj \
             -scheme YTMusicPlus \
-            -configuration Debug \
+            -configuration Release \
             -sdk iphoneos \
             -destination generic/platform=iOS \
-            -derivedDataPath build/dd \
+            -derivedDataPath build/dd-device \
             CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
             -quiet
-          find build/dd/Build/Products -name '*.app' -exec cp -r {} build/Payload/ \;
-          cd build && zip -r ipa/YTMusicPlus.ipa Payload
-          cd ..
+          APP=build/dd-device/Build/Products/Release-iphoneos/YTMusicPlus.app
+          test -x "$APP/YTMusicPlus"
+          rm -rf build/Payload build/ipa && mkdir -p build/Payload build/ipa
+          cp -R "$APP" build/Payload/
+          (cd build && zip -qry ipa/YTMusicPlus.ipa Payload)
+          unzip -l build/ipa/YTMusicPlus.ipa | head -5
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: YTMusicPlus-ipa
           path: build/ipa/YTMusicPlus.ipa
-          retention-days: 7
+          retention-days: 30
